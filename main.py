@@ -1,7 +1,5 @@
 #!/usr/bin/python3.6
 import util
-import subprocess
-import os
 
 print(r"""
  _____  _                    _        ______               _                   ___  ___
@@ -21,8 +19,9 @@ while True:
         print('Wrong path, try again...')
         cnfPath = ''
     else:
+        cnfDict = util.find_elements(cnfPath)
+        print(cnfDict)
+        print(util.print_backup_tool(cnfDict.get('basedir')))
         break
 
 
-cnf_dict = util.find_basedir(cnfPath)
-print(cnf_dict)
