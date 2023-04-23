@@ -21,12 +21,12 @@ def find_elements(my_cnf_path):
     return cnf_dict
 
 
-def print_backup_tool(basedir):
-    tool_sample = ['mysqldump', 'mysqlbackup', 'mariabackup']
-    exists_tool = []
+def get_backup_util(basedir):
+    util_sample = ['mysqldump', 'mysqlbackup', 'mariabackup']
+    exists_util = []
 
-    for tool in tool_sample:
+    for tool in util_sample:
         if os.path.exists(f'{basedir}/bin/{tool}'):
-            exists_tool.append(tool)
+            exists_util.append(tool)
 
-    return exists_tool
+    return exists_util

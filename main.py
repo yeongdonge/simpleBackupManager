@@ -13,15 +13,22 @@ print(r"""
 """)
 
 while True:
-    cnfPath = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
-    validate = util.validate_cnf_path(cnfPath)
+    cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
+    validate = util.validate_cnf_path(cnf_path)
     if not validate:
         print('Wrong path, try again...')
-        cnfPath = ''
+        cnf_path = ''
     else:
-        cnfDict = util.find_elements(cnfPath)
-        print(cnfDict)
-        print(util.print_backup_tool(cnfDict.get('basedir')))
+        cnf_dict = util.find_elements(cnf_path)
+        print(cnf_dict)
+        backup_util_list = util.get_backup_util(cnf_dict.get('basedir'))
         break
 
+print('Detected Backup Util List')
+for i in range(len(backup_util_list)):
+    print(f'{i+1}. {backup_util_list[i]}')
+
+selected_tool = int(input('Enter index of Backup Tool : '))
+
+print(backup_util_list[selected_tool-1])
 
