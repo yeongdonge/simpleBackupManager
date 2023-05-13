@@ -1,6 +1,7 @@
 import configparser
 import os
 import exception
+import pickle
 
 
 def validate_cnf_path(my_cnf_path):
@@ -15,7 +16,7 @@ def find_elements(my_cnf_path):
         cnf_dict = {'basedir': f"{config.get('mysqld', 'basedir')}",
                     'port': f"{config.get('mysqld', 'port')}",
                     'socket': f"{config.get('mysqld', 'socket')}"}
-    except ValueError:
+    except configparser.NoOptionError:
         return exception.WrongConfigurationPathError(f'Not exists Elements (basedir, port, socket) in {my_cnf_path}'
                                                      f'Backup Manager is terminated')
     return cnf_dict
@@ -36,3 +37,5 @@ def signal_handler(sig, frame):
     return exception.DetectedSignalKeyError('\n\n\n'
                                             'You pressed Ctrl+C!'
                                             '\n\n\n')
+
+
