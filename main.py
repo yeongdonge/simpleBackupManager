@@ -2,7 +2,9 @@ import util
 import signal
 import typer
 import getpass
-import repository.dbRepository as repo
+import repository.dbConnectionRepository as dbConRepo
+import repository.configurationElementsRepository as configRepo
+from domain.configurationElements import ConfigElements
 from domain.connectionInfo import DbCon
 
 signal.signal(signal.SIGINT, util.signal_handler)
@@ -34,18 +36,40 @@ def init():
             if not isinstance(cnf_dict, dict):
                 if cnf_dict:
                     print(cnf_dict)
+
+            # Get Connection Info
             port = cnf_dict.get('port')
             user = input('Enter User : ')
             password = getpass.getpass('Enter Password : ')
+            socket = cnf_dict.get('socket')
 
-            repo.save(DbCon(port, user, password))
+            dbConRepo.save(DbCon(port, user, password, socket))
+
+            # Get Configuration Info
+            basedir = cnf_dict.get('basedir')
+            datadir = cnf_dict.get('datadir')
+            backupdir = input('Enter the Backup Directory : ')
+
+            configRepo.save(ConfigElements(basedir, datadir, backupdir))
+
             backup_util_list = util.get_backup_util(cnf_dict.get('basedir'))
             print(f' {backup_util_list}')
         break
 
 @app.command()
-def connection():
-    print('hello')
+def load():
+    print(f'DB Connection Init Info\n'
+          f'Port = {dbConRepo.load().port}\n'
+          f'User = {dbConRepo.load().user}\n'
+          f'Password = Invisible\n\n\n'
+          f'Configuration Init Info\n'
+          f'Basedir = {configRepo.load().basedir}\n'
+          f'Datadir = {configRepo.load().datadir}\n'
+          f'Backupdir = {configRepo.load().backupdir}')
+
+# @app.command()
+# def backup():
+
 
 
 if __name__ == "__main__":

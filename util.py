@@ -14,8 +14,10 @@ def find_elements(my_cnf_path):
     config.read(my_cnf_path)
     try:
         cnf_dict = {'basedir': f"{config.get('mysqld', 'basedir')}",
+                    'datadir': f"{config.get('mysqld', 'datadir')}",
                     'port': f"{config.get('mysqld', 'port')}",
-                    'socket': f"{config.get('mysqld', 'socket')}"}
+                    'socket': f"{config.get('mysqld', 'socket')}"
+                    }
     except configparser.NoOptionError:
         return exception.WrongConfigurationPathError(f'Not exists Elements (basedir, port, socket) in {my_cnf_path}'
                                                      f'Backup Manager is terminated')
@@ -37,5 +39,3 @@ def signal_handler(sig, frame):
     return exception.DetectedSignalKeyError('\n\n\n'
                                             'You pressed Ctrl+C!'
                                             '\n\n\n')
-
-

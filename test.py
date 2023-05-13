@@ -1,4 +1,4 @@
-import repository.dbRepository as test
+import repository.dbConnectionRepository as test
 
 test.save()
 
