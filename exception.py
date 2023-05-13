@@ -1,8 +1,10 @@
-class NotExistsElementsError(Exception):
+def NotExistsElementsError(Exception):
     pass
 
-class WrongConfigurationPathError(Exception):
+
+def WrongConfigurationPathError(Exception):
     pass
 
-class DetectedSignalKeyError(Exception):
+
+def DetectedSignalKeyError(Exception):
     exit(1)

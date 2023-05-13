@@ -1,4 +1,3 @@
-# !/usr/bin/python3.6
 import util
 import signal
 
