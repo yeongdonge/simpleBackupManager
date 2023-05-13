@@ -1,6 +1,8 @@
-#!/usr/bin/python3.6
+# !/usr/bin/python3.6
 import util
+import signal
 
+signal.signal(signal.SIGINT, util.signal_handler)
 print(r"""
  _____  _                    _        ______               _                   ___  ___
 /  ___|(_)                  | |       | ___ \             | |                  |  \/  |
@@ -12,6 +14,7 @@ print(r"""
                      |_|                                               |_|                                   |___/
 """)
 
+
 while True:
     cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
     validate = util.validate_cnf_path(cnf_path)
@@ -20,15 +23,16 @@ while True:
         cnf_path = ''
     else:
         cnf_dict = util.find_elements(cnf_path)
-        print(cnf_dict)
+        if not isinstance(cnf_dict, dict):
+            print(cnf_dict)
+            exit(1)
         backup_util_list = util.get_backup_util(cnf_dict.get('basedir'))
         break
 
 print('Detected Backup Util List')
 for i in range(len(backup_util_list)):
-    print(f'{i+1}. {backup_util_list[i]}')
+    print(f'{i + 1}. {backup_util_list[i]}')
 
 selected_tool = int(input('Enter index of Backup Tool : '))
 
-print(backup_util_list[selected_tool-1])
-
+print(backup_util_list[selected_tool - 1])
