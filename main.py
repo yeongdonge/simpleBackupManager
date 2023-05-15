@@ -5,7 +5,8 @@ import getpass
 import repository.dbConnectionRepository as dbConRepo
 import repository.configurationElementsRepository as configRepo
 from domain.configurationElements import ConfigElements
-from domain.connectionInfo import DbCon
+from domain.connectionInfo import ConnectionInfo
+from repository.dbCon import DbCon
 
 signal.signal(signal.SIGINT, util.signal_handler)
 print(r"""
@@ -43,7 +44,7 @@ def init():
             password = getpass.getpass('Enter Password : ')
             socket = cnf_dict.get('socket')
 
-            dbConRepo.save(DbCon(port, user, password, socket))
+            dbConRepo.save(ConnectionInfo(port, user, password, socket))
 
             # Get Configuration Info
             basedir = cnf_dict.get('basedir')
@@ -56,6 +57,7 @@ def init():
             print(f' {backup_util_list}')
         break
 
+
 @app.command()
 def load():
     print(f'DB Connection Init Info\n'
@@ -67,14 +69,15 @@ def load():
           f'Datadir = {configRepo.load().datadir}\n'
           f'Backupdir = {configRepo.load().backupdir}')
 
-# @app.command()
-# def backup():
+
+
+
+
 
 
 
 if __name__ == "__main__":
     app()
-
 
 print('Detected Backup Util List')
 for i in range(len(backup_util_list)):

@@ -1,6 +1,4 @@
-import repository.dbConnectionRepository as test
+from repository.dbCon import DbCon
 
-test.save()
-
-print(test.load())
-
+db = DbCon.instance('information_schema')
+print(db.host)

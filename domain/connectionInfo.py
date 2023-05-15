@@ -1,4 +1,4 @@
-class DbCon:
+class ConnectionInfo:
     def __init__(self, port, user, password, socket):
         self.port = port
         self.user = user
