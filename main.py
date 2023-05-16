@@ -22,8 +22,7 @@ print(r"""
 
 app = typer.Typer()
 
-if __name__ == "__main__":
-    app()
+
 
 
 @app.command()
@@ -82,7 +81,7 @@ def load():
 
 @app.command()
 def backup():
-    backup_common_util_list: [] = common_util.get_backup_common_util(str(configRepo.load().basedir))
+    backup_common_util_list: [] = common_util.get_backup_util(str(configRepo.load().basedir))
     print(f'Select Backup Tools\n')
     for i in range(len(backup_common_util_list)):
         print(f'{i + 1}. {backup_common_util_list[i]}')
@@ -95,3 +94,6 @@ def backup():
             print('Wrong index, try again...')
             pass
     print(backup_common_util_list[selected_tool - 1])
+
+if __name__ == "__main__":
+    app()
