@@ -7,8 +7,7 @@ import repository.dbConnectionRepository as dbConRepo
 import repository.configurationElementsRepository as configRepo
 from domain.configurationElements import ConfigElements
 from domain.connectionInfo import ConnectionInfo
-import os
-from repository.dbCon import DbCon
+from backupUtil.common import get_schema
 
 signal.signal(signal.SIGINT, common_util.signal_handler)
 print(r"""
@@ -99,6 +98,8 @@ def backup():
             print('Wrong index, try again...')
             pass
     print(backup_common_util_list[selected_tool - 1])
+    get_schema()
+
 
 if __name__ == "__main__":
     app()

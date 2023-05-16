@@ -22,10 +22,8 @@ class DbCon:
                 cursorclass=DictCursor
             )
 
-
     @staticmethod
     def instance(schema: object) -> object:
         if DbCon.__instance is None:
             DbCon(schema)
         return DbCon.__instance
-
