@@ -1,4 +1,4 @@
-import util
+import common_util
 import signal
 import typer
 import getpass
@@ -8,7 +8,7 @@ from domain.configurationElements import ConfigElements
 from domain.connectionInfo import ConnectionInfo
 from repository.dbCon import DbCon
 
-signal.signal(signal.SIGINT, util.signal_handler)
+signal.signal(signal.SIGINT, common_util.signal_handler)
 print(r"""
  _____  _                    _        ______               _                   ___  ___
 /  ___|(_)                  | |       | ___ \             | |                  |  \/  |
@@ -22,18 +22,27 @@ print(r"""
 
 app = typer.Typer()
 
+if __name__ == "__main__":
+    app()
+
 
 @app.command()
 def init():
+    """ 데이터베이스 정보를 입력합니다. (port, user, password, socket) user, password를 제외한 정보는 my.cnf에서 명시적으로 표기되어 있어야 합니다.
+    ex)
+    [mysqld]
+    basedir=/mysql/
+    socket=/tmp/mysql.sock
+    """
     while True:
         cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
-        validate = util.validate_cnf_path(cnf_path)
+        validate = common_util.validate_cnf_path(cnf_path)
         if not validate:
             print('Wrong path, try again...')
             cnf_path = ''
             continue
         else:
-            cnf_dict = util.find_elements(cnf_path)
+            cnf_dict = common_util.find_elements(cnf_path)
             if not isinstance(cnf_dict, dict):
                 if cnf_dict:
                     print(cnf_dict)
@@ -53,13 +62,14 @@ def init():
 
             configRepo.save(ConfigElements(basedir, datadir, backupdir))
 
-            backup_util_list = util.get_backup_util(cnf_dict.get('basedir'))
-            print(f' {backup_util_list}')
+            backup_common_util_list = common_util.get_backup_common_util(cnf_dict.get('basedir'))
+            print(f' {backup_common_util_list}')
         break
 
 
 @app.command()
 def load():
+    """ init에서 입력한 정보들을 출력합니다. 패스워드는 노출되지 않습니다."""
     print(f'DB Connection Init Info\n'
           f'Port = {dbConRepo.load().port}\n'
           f'User = {dbConRepo.load().user}\n'
@@ -70,25 +80,18 @@ def load():
           f'Backupdir = {configRepo.load().backupdir}')
 
 
+@app.command()
+def backup():
+    backup_common_util_list: [] = common_util.get_backup_common_util(str(configRepo.load().basedir))
+    print(f'Select Backup Tools\n')
+    for i in range(len(backup_common_util_list)):
+        print(f'{i + 1}. {backup_common_util_list[i]}')
 
-
-
-
-
-
-if __name__ == "__main__":
-    app()
-
-print('Detected Backup Util List')
-for i in range(len(backup_util_list)):
-    print(f'{i + 1}. {backup_util_list[i]}')
-
-while True:
-    try:
-        selected_tool = int(input('Enter index of Backup Tool : '))
-        break
-    except ValueError:
-        print('Wrong path, try again...')
-        pass
-
-print(backup_util_list[selected_tool - 1])
+    while True:
+        try:
+            selected_tool = int(input('Enter index of Backup Tool : '))
+            break
+        except ValueError:
+            print('Wrong index, try again...')
+            pass
+    print(backup_common_util_list[selected_tool - 1])
