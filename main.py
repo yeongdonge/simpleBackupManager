@@ -1,3 +1,4 @@
+#!/usr/bin/python3.6
 import common_util
 import signal
 import typer
@@ -6,6 +7,7 @@ import repository.dbConnectionRepository as dbConRepo
 import repository.configurationElementsRepository as configRepo
 from domain.configurationElements import ConfigElements
 from domain.connectionInfo import ConnectionInfo
+import os
 from repository.dbCon import DbCon
 
 signal.signal(signal.SIGINT, common_util.signal_handler)
@@ -35,7 +37,7 @@ def init():
     """
     while True:
         cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
-        validate = common_util.validate_cnf_path(cnf_path)
+        validate = common_util.validate_path(cnf_path)
         if not validate:
             print('Wrong path, try again...')
             cnf_path = ''
@@ -57,12 +59,15 @@ def init():
             # Get Configuration Info
             basedir = cnf_dict.get('basedir')
             datadir = cnf_dict.get('datadir')
-            backupdir = input('Enter the Backup Directory : ')
-
+            while True:
+                backupdir = input('Enter the Backup Directory : ')
+                if not common_util.validate_path(backupdir):
+                    print('Wrong path, try again...')
+                    backupdir = ''
+                    continue
+                else:
+                    break
             configRepo.save(ConfigElements(basedir, datadir, backupdir))
-
-            backup_common_util_list = common_util.get_backup_common_util(cnf_dict.get('basedir'))
-            print(f' {backup_common_util_list}')
         break
 
 
@@ -81,7 +86,7 @@ def load():
 
 @app.command()
 def backup():
-    backup_common_util_list: [] = common_util.get_backup_util(str(configRepo.load().basedir))
+    backup_common_util_list = common_util.get_backup_util(configRepo.load().basedir)
     print(f'Select Backup Tools\n')
     for i in range(len(backup_common_util_list)):
         print(f'{i + 1}. {backup_common_util_list[i]}')
