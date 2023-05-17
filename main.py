@@ -3,11 +3,13 @@ import common_util
 import signal
 import typer
 import getpass
+import re
 import repository.dbConnectionRepository as dbConRepo
 import repository.configurationElementsRepository as configRepo
 from domain.configurationElements import ConfigElements
 from domain.connectionInfo import ConnectionInfo
 from backupUtil.common import get_schema
+from backupUtil.common import select_schema
 
 signal.signal(signal.SIGINT, common_util.signal_handler)
 print(r"""
@@ -94,11 +96,33 @@ def backup():
         try:
             selected_tool = int(input('Enter index of Backup Tool : '))
             break
-        except ValueError:
+        except IndexError:
             print('Wrong index, try again...')
             pass
-    print(backup_common_util_list[selected_tool - 1])
-    get_schema()
+    prefix = str(f'[{backup_common_util_list[selected_tool - 1]}]')
+    print(f'{prefix} Schema list in MySQL(MariaDB)')
+    schema_list: [] = get_schema()
+    for i in range(len(schema_list)):
+        print(f"{str(str((i + 1))+'.').ljust(2)} {(schema_list[i])}")
+    print(f"{str('99.').ljust(2)} ALL Schemas")
+    selected_index = input(f"Select backup schemas \n"
+                           f"(separated by commas, spaces are ignored, '0' input means all schemas)\n"
+                           f": ")
+    splitted_index = re.split(r',s*', selected_index)
+    schema_name_list = []
+    if splitted_index is 99:
+        length = len(schema_list)
+        schema_name_list = select_schema(length, list(range(1, length + 1)))
+    else:
+        output_list = [index.strip() for index in splitted_index]
+        schema_name_list = select_schema(schema_list, output_list)
+
+
+    print('The selected schemas are as follows... ')
+    print(schema_name_list)
+
+
+
 
 
 if __name__ == "__main__":

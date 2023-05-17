@@ -5,10 +5,10 @@ path = str(Path(__file__).parent.parent) + '/resources/db.pickle'
 
 
 ## Save pickle
-def save(conncetion_info):
+def save(connection_info):
     print(path)
     with open(path, "wb") as initInfo:
-        pickle.dump(conncetion_info, initInfo)
+        pickle.dump(connection_info, initInfo)
 
 
 ## Load pickle
