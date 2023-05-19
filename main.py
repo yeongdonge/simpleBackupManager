@@ -26,8 +26,6 @@ print(r"""
 app = typer.Typer()
 
 
-
-
 @app.command()
 def init():
     """ 데이터베이스 정보를 입력합니다. (port, user, password, socket) user, password를 제외한 정보는 my.cnf에서 명시적으로 표기되어 있어야 합니다.
@@ -103,26 +101,21 @@ def backup():
     print(f'{prefix} Schema list in MySQL(MariaDB)')
     schema_list: [] = get_schema()
     for i in range(len(schema_list)):
-        print(f"{str(str((i + 1))+'.').ljust(2)} {(schema_list[i])}")
+        print(f"{str(str((i + 1)) + '.').ljust(3)} {(schema_list[i])}")
     print(f"{str('99.').ljust(2)} ALL Schemas")
     selected_index = input(f"Select backup schemas \n"
                            f"(separated by commas, spaces are ignored, '0' input means all schemas)\n"
                            f": ")
     splitted_index = re.split(r',s*', selected_index)
-    schema_name_list = []
-    if splitted_index is 99:
+    if '99' in splitted_index:
         length = len(schema_list)
-        schema_name_list = select_schema(length, list(range(1, length + 1)))
+        schema_name_list = select_schema(schema_list, list(range(0, length)))
     else:
         output_list = [index.strip() for index in splitted_index]
         schema_name_list = select_schema(schema_list, output_list)
 
-
     print('The selected schemas are as follows... ')
     print(schema_name_list)
-
-
-
 
 
 if __name__ == "__main__":

@@ -20,6 +20,7 @@ def select_schema(schema_list: [], selected_schema_index: []):
     print(selected_schema_index)
     for i in range(len(selected_schema_index)):
         schema_name_list.append(schema_list[int(selected_schema_index[i])-1])
+        print(schema_list[i])
     return schema_name_list
 
 
