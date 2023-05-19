@@ -3,7 +3,6 @@ from pathlib import Path
 
 path = str(Path(__file__).parent.parent) + '/resources/db.pickle'
 
-
 ## Save pickle
 def save(connection_info):
     print(path)
@@ -15,3 +14,8 @@ def save(connection_info):
 def load():
     with open(path, "rb") as getInfo:
         return pickle.load(getInfo)
+
+# def save_encrypted_pickle(filename, key, data):
+#     encrypted_data = encrypt_data(key, data)
+#     with open(filename, 'wb') as file:
+#         file.write(encrypted_data)

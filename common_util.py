@@ -3,7 +3,6 @@ import os
 import exception
 import pickle
 
-
 def validate_path(my_cnf_path):
     validate = os.path.exists(my_cnf_path)
     return validate
