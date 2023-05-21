@@ -4,12 +4,15 @@ import signal
 import typer
 import getpass
 import re
+import subprocess
 import repository.dbConnectionRepository as dbConRepo
 import repository.configurationElementsRepository as configRepo
 from domain.configurationElements import ConfigElements
 from domain.connectionInfo import ConnectionInfo
 from backupUtil.common import get_schema
 from backupUtil.common import select_schema
+from backupUtil.common import get_tables
+from backupUtil.mysqldump import MysqlDump
 
 signal.signal(signal.SIGINT, common_util.signal_handler)
 print(r"""
@@ -97,8 +100,8 @@ def backup():
         except IndexError:
             print('Wrong index, try again...')
             pass
-    prefix = str(f'[{backup_common_util_list[selected_tool - 1]}]')
-    print(f'{prefix} Schema list in MySQL(MariaDB)')
+    prefix_schema = str(f'[{backup_common_util_list[selected_tool - 1]}]')
+    print(f'{prefix_schema} Schema list in MySQL(MariaDB)')
     schema_list: [] = get_schema()
     for i in range(len(schema_list)):
         print(f"{str(str((i + 1)) + '.').ljust(3)} {(schema_list[i])}")
@@ -111,10 +114,35 @@ def backup():
         length = len(schema_list)
         schema_name_list = select_schema(schema_list, list(range(0, length)))
     else:
-        output_list = [index.strip() for index in splitted_index]
-        schema_name_list = select_schema(schema_list, output_list)
+        while True:
+            try:
+                output_list = [index.strip() for index in splitted_index]
+                schema_name_list = select_schema(schema_list, output_list)
+                break
+            except IndexError:
+                print('Wrong index, try again...')
+                pass
+
     print('The selected schemas are as follows... ')
     print(schema_name_list)
+    if len(schema_name_list) == 1:
+        while True:
+            option = input(f'You have selected one schema. Please select an option.\n'
+                           f'1. Schema Backup\n'
+                           f'2. Table Backup\n'
+                           f': ')
+            if int(option) == 1:
+                break
+            else:
+                table_list = get_tables(str(schema_list[0]))
+    else:
+        test=['events', 'routines']
+        mysqldump = MysqlDump(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port, dbConRepo.load().socket)
+        os_command = mysqldump.schema_backup(configRepo.load().basedir, schema_name_list, test, f'{configRepo.load().backupdir}/test.sql')
+        subprocess.run(os_command, shell=True, capture_output=True, text=True)
+
+
+
 
 
 if __name__ == "__main__":
