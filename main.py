@@ -24,7 +24,11 @@ print(r"""
 \____/ |_||_| |_| |_|| .__/ |_| \___| \____/  \__,_| \___||_|\_\ \__,_|| .__/  \_|  |_/ \__,_||_| |_| \__,_| \__, | \___||_|
                      | |                                               | |                                    __/ |
                      |_|                                               |_|                                   |___/
+                    
+                    
+                    YOU CAN START SIMPLE BACKUP Tool ( option : init -> load -> backup )
 """)
+
 
 app = typer.Typer()
 
@@ -39,7 +43,6 @@ def init():
     """
     while True:
         cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
-        print(cnf_path.strip())
         validate = common_util.validate_path(str(cnf_path.strip()))
         if not validate:
             print('Wrong path, try again...')
@@ -88,6 +91,7 @@ def load():
 
 @app.command()
 def backup():
+    """ backup을 수행합니다."""
     backup_common_util_list = common_util.get_backup_util(configRepo.load().basedir)
     print(f'Select Backup Tools\n')
     for i in range(len(backup_common_util_list)):
