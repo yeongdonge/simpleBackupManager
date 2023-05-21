@@ -4,21 +4,27 @@ from repository.dbCon import DbCon
 
 
 def get_schema():
-    con = DbCon.instance('information_schema')
-    with con.connection.cursor() as cursor:
-        cursor.execute("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME not in ('PERFORMANCE_SCHEMA', 'INFORMATION_SCHEMA');")
-        schema = list([row[0] for row in cursor.fetchall()])
-        con.connection.close()
+    # con = DbCon.instance('information_schema')
+    try:
+        con = DbCon.instance('information_schema')
+        with con.connection.cursor() as cursor:
+            cursor.execute("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME not in ('PERFORMANCE_SCHEMA', 'INFORMATION_SCHEMA')")
+            schema = list([row[0] for row in cursor.fetchall()])
+    finally:
+        # con.connection.close()
         return schema
 
 def get_tables(schema: str):
-    con = DbCon.instance('information_schema')
-    with con.connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT TABLE_NAME FROM INFORMATION_SCHEMA_TABLES WHERE TABLE_SCHEMA = {}""".format(schema))
-        tables = list([row[0] for row in cursor.fetchall()])
-        con.connection.clse()
+    # con = DbCon.instance('information_schema')
+    try:
+        con = DbCon.instance('information_schema')
+        with con.connection.cursor() as cursor:
+            cursor.execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = %s", schema,)
+            tables = list([row[0] for row in cursor.fetchall()])
+    finally:
+        # con.connection.close()
         return tables
+
 
 
 def select_schema(schema_list: [], selected_schema_index: []):

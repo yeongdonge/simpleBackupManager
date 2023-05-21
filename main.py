@@ -100,14 +100,14 @@ def backup():
         except IndexError:
             print('Wrong index, try again...')
             pass
-    prefix_schema = str(f'[{backup_common_util_list[selected_tool - 1]}]')
-    print(f'{prefix_schema} Schema list in MySQL(MariaDB)')
+    prefix_util = str(f'[{backup_common_util_list[selected_tool - 1]}]')
+    print(f'{prefix_util} Schema list in MySQL(MariaDB)')
     schema_list: [] = get_schema()
     for i in range(len(schema_list)):
         print(f"{str(str((i + 1)) + '.').ljust(3)} {(schema_list[i])}")
     print(f"{str('99.').ljust(2)} ALL Schemas")
     selected_index = input(f"Select backup schemas \n"
-                           f"(separated by commas, spaces are ignored, '0' input means all schemas)\n"
+                           f"(separated by commas, spaces are ignored, '99' input means all schemas)\n"
                            f": ")
     splitted_index = re.split(r',s*', selected_index)
     if '99' in splitted_index:
@@ -123,23 +123,65 @@ def backup():
                 print('Wrong index, try again...')
                 pass
 
+    mysqldump = MysqlDump(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port, dbConRepo.load().socket)
     print('The selected schemas are as follows... ')
     print(schema_name_list)
+
+    export_backup_filename = input('Enter export Backup filename'
+                                   ': ')
     if len(schema_name_list) == 1:
         while True:
-            option = input(f'You have selected one schema. Please select an option.\n'
+            try:
+                option = input(f'You have selected one schema. Please select an option.\n'
                            f'1. Schema Backup\n'
                            f'2. Table Backup\n'
                            f': ')
-            if int(option) == 1:
+                if int(option) == 1:
+                    option = input(f'Select option during processing mysqldump.\n'
+                                   f'1. event - Include Event Scheduler events for the dumped databases in the output. This option requires the EVENT privileges for those databases.\n'
+                                   f'2. routine - Include stored routines (procedures and functions) for the dumped databases in the output. This option requires the global SELECT privilege.\n'
+                                   f'3. single-transaction - This option sets the transaction isolation mode to REPEATABLE READ and sends a START TRANSACTION SQL statement to the server before dumping data.\n'
+                                   f'(separated by commas, spaces are ignored)\n'
+                                   f':  ')
+                    splitted_option = re.split(r',s*', option)
+
+                    os_command = mysqldump.schema_backup(configRepo.load().basedir, schema_name_list, splitted_option,
+                                                         f'{configRepo.load().backupdir}/test.sql')
+                    print(os_command)
+                    subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, text=True)
+                else:
+                    print(schema_name_list[0])
+                    table_list = get_tables(str(schema_name_list[0]))
+
+                    for i in range(len(table_list)):
+                        print(f"{str(str((i + 1)) + '.').ljust(3)} {(table_list[i])}")
+                    print(f"{str('99.').ljust(2)} ALL Tables")
+                    selected_index = input(f"Select backup tables \n"
+                                           f"(separated by commas, spaces are ignored, '99' input means all schemas)\n"
+                                           f": ")
+
+                    splitted_index = re.split(r',s*', selected_index)
+                    if '99' in splitted_index:
+                        length = len(table_list)
+                        schema_name_list = select_schema(table_list, list(range(0, length)))
+                    else:
+                        while True:
+                            try:
+                                output_list = [index.strip() for index in splitted_index]
+                                table_name_list = select_schema(table_list, output_list)
+                                os_command = mysqldump.table_backup(configRepo.load().basedir, schema_name_list[0],
+                                                                    table_list,
+                                                                    f'{configRepo.load().backupdir}/{export_backup_filename}')
+                                print(f'................{os_command}')
+                                subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, text=True)
+                                break
+                            except IndexError:
+                                print('Wrong index, try again...')
+                                pass
                 break
-            else:
-                table_list = get_tables(str(schema_list[0]))
-    else:
-        test=['events', 'routines']
-        mysqldump = MysqlDump(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port, dbConRepo.load().socket)
-        os_command = mysqldump.schema_backup(configRepo.load().basedir, schema_name_list, test, f'{configRepo.load().backupdir}/test.sql')
-        subprocess.run(os_command, shell=True, capture_output=True, text=True)
+            except IndexError:
+                print('Wrong index, try again...')
+                pass
 
 
 
