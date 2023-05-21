@@ -1,10 +1,5 @@
-import base64
 import pickle
 from pathlib import Path
-from cryptography.fernet import Fernet
-from repository.encKey import EncKey
-import backupUtil.common as common
-from domain.configurationElements import ConfigElements
 
 path = str(Path(__file__).parent.parent) + '/resources/config.pickle'
 

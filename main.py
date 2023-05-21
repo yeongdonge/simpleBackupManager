@@ -123,32 +123,21 @@ def backup():
                 print('Wrong index, try again...')
                 pass
 
-    mysqldump = MysqlDump(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port, dbConRepo.load().socket)
     print('The selected schemas are as follows... ')
     print(schema_name_list)
 
-    export_backup_filename = input('Enter export Backup filename'
+    export_backup_filename = input(f'Enter export Backup filename [{configRepo.load().backupdir}]'
                                    ': ')
     if len(schema_name_list) == 1:
         while True:
             try:
                 option = input(f'You have selected one schema. Please select an option.\n'
-                           f'1. Schema Backup\n'
-                           f'2. Table Backup\n'
-                           f': ')
+                               f'1. Schema Backup\n'
+                               f'2. Table Backup\n'
+                               f': ')
                 if int(option) == 1:
-                    option = input(f'Select option during processing mysqldump.\n'
-                                   f'1. event - Include Event Scheduler events for the dumped databases in the output. This option requires the EVENT privileges for those databases.\n'
-                                   f'2. routine - Include stored routines (procedures and functions) for the dumped databases in the output. This option requires the global SELECT privilege.\n'
-                                   f'3. single-transaction - This option sets the transaction isolation mode to REPEATABLE READ and sends a START TRANSACTION SQL statement to the server before dumping data.\n'
-                                   f'(separated by commas, spaces are ignored)\n'
-                                   f':  ')
-                    splitted_option = re.split(r',s*', option)
-
-                    os_command = mysqldump.schema_backup(configRepo.load().basedir, schema_name_list, splitted_option,
-                                                         f'{configRepo.load().backupdir}/test.sql')
-                    print(os_command)
-                    subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, text=True)
+                    dump_schema_backup(configRepo.load().basedir, schema_name_list, configRepo.load().backupdir,
+                                       export_backup_filename)
                 else:
                     print(schema_name_list[0])
                     table_list = get_tables(str(schema_name_list[0]))
@@ -163,28 +152,53 @@ def backup():
                     splitted_index = re.split(r',s*', selected_index)
                     if '99' in splitted_index:
                         length = len(table_list)
-                        schema_name_list = select_schema(table_list, list(range(0, length)))
+                        table_name_list = select_schema(table_list, list(range(0, length)))
                     else:
                         while True:
                             try:
                                 output_list = [index.strip() for index in splitted_index]
                                 table_name_list = select_schema(table_list, output_list)
-                                os_command = mysqldump.table_backup(configRepo.load().basedir, schema_name_list[0],
-                                                                    table_list,
-                                                                    f'{configRepo.load().backupdir}/{export_backup_filename}')
-                                print(f'................{os_command}')
-                                subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, text=True)
                                 break
                             except IndexError:
                                 print('Wrong index, try again...')
                                 pass
+                    mysqldump = get_mysqldump_instance(dbConRepo.load().user, dbConRepo.load().password,
+                                                      dbConRepo.load().port, dbConRepo.load().socket)
+                    os_command = mysqldump.table_backup(configRepo.load().basedir, schema_name_list[0],
+                                                        table_name_list,
+                                                        f'{configRepo.load().backupdir}/{export_backup_filename}')
+                    print(f'................{os_command}')
+                    subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 break
             except IndexError:
                 print('Wrong index, try again...')
                 pass
+    else:
+        dump_schema_backup(configRepo.load().basedir, schema_name_list, configRepo.load().backupdir,
+                           export_backup_filename)
 
 
+def get_mysqldump_instance(user, password, port, socket):
+    mysqldump = MysqlDump(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port,
+                          dbConRepo.load().socket)
+    return mysqldump
 
+
+def dump_schema_backup(basedir, table_name_list, backupdir, export_backup_filename):
+    mysqldump = get_mysqldump_instance(dbConRepo.load().user, dbConRepo.load().password, dbConRepo.load().port,
+                                      dbConRepo.load().socket)
+    option = input(f'Select option during processing mysqldump.\n'
+                   f'1. event - Include Event Scheduler events for the dumped databases in the output. This option requires the EVENT privileges for those databases.\n'
+                   f'2. routine - Include stored routines (procedures and functions) for the dumped databases in the output. This option requires the global SELECT privilege.\n'
+                   f'3. single-transaction - This option sets the transaction isolation mode to REPEATABLE READ and sends a START TRANSACTION SQL statement to the server before dumping data.\n'
+                   f'(separated by commas, spaces are ignored)\n'
+                   f':  ')
+    splitted_option = re.split(r',s*', option)
+
+    os_command = mysqldump.schema_backup(configRepo.load().basedir, table_name_list, splitted_option,
+                                         f'{configRepo.load().backupdir}/{export_backup_filename}')
+    print(os_command)
+    subprocess.run(os_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 if __name__ == "__main__":
