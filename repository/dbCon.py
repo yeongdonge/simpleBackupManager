@@ -19,7 +19,7 @@ class DbCon:
                 password=str(dbConRepo.load().password),
                 db=str(schema),
                 charset='utf8mb4',
-                cursorclass=DictCursor
+                # cursorclass=DictCursor
             )
 
     @staticmethod

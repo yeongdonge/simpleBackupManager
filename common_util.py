@@ -4,8 +4,12 @@ import exception
 import pickle
 
 def validate_path(my_cnf_path):
-    validate = os.path.exists(my_cnf_path)
-    return validate
+    try:
+        validate = os.path.exists(my_cnf_path)
+        return validate
+    except:
+        exception.WrongConfigurationPathError('Failed to read value, please remove space if correct path.')
+
 
 
 def find_elements(my_cnf_path):

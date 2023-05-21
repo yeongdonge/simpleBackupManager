@@ -36,7 +36,8 @@ def init():
     """
     while True:
         cnf_path = input('Enter Your MySQL(MariaDB) Configuration Absolute Path : ')
-        validate = common_util.validate_path(cnf_path)
+        print(cnf_path.strip())
+        validate = common_util.validate_path(str(cnf_path.strip()))
         if not validate:
             print('Wrong path, try again...')
             cnf_path = ''
@@ -54,7 +55,6 @@ def init():
             socket = cnf_dict.get('socket')
 
             dbConRepo.save(ConnectionInfo(port, user, password, socket))
-
             # Get Configuration Info
             basedir = cnf_dict.get('basedir')
             datadir = cnf_dict.get('datadir')
@@ -113,7 +113,6 @@ def backup():
     else:
         output_list = [index.strip() for index in splitted_index]
         schema_name_list = select_schema(schema_list, output_list)
-
     print('The selected schemas are as follows... ')
     print(schema_name_list)
 
